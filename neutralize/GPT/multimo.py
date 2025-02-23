@@ -14,9 +14,6 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 tokenizer = AutoTokenizer.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
 model = AutoModelForSequenceClassification.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
 
-# Load CLIP model for multimodal reasoning
-# clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-# clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 # Load CLIP model and processor
 clip_model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
 clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
@@ -83,76 +80,6 @@ def multimodal_reasoning(image_path=None):
     except Exception as e:
         return f"Error processing image: {str(e)}"
 
-# def multimodal_reasoning(t="", image_path=None):
-#     reasoning = t  # Default text
-#     if image_path:
-#         try:
-#             # Load and preprocess the image
-#             image = Image.open(image_path).convert("RGB")
-#             inputs = clip_processor(images=image, return_tensors="pt")
-
-#             # Extract image features
-#             with torch.no_grad():
-#                 image_features = clip_model.get_image_features(**inputs)
-
-#             # Normalize the image features
-#             image_features /= image_features.norm(dim=-1, keepdim=True)
-
-#             # Define candidate textual descriptions
-#             candidate_texts = [
-#                 "A dog playing in the park",
-#                 "A cat sleeping on a sofa",
-#                 "A beautiful sunset over the ocean",
-#                 "A person riding a bicycle",
-#                 "A plate of delicious food",
-#                 "A city skyline at night",
-#                 "A book on a wooden table"
-#             ]
-
-#             # Convert text descriptions to CLIP embeddings
-#             text_inputs = clip_processor(text=candidate_texts, return_tensors="pt", padding=True)
-#             with torch.no_grad():
-#                 text_features = clip_model.get_text_features(**text_inputs)
-            
-#             # Normalize the text features
-#             text_features /= text_features.norm(dim=-1, keepdim=True)
-
-#             # Compute similarity between image and text
-#             similarity = (image_features @ text_features.T).squeeze(0)
-#             best_match_idx = similarity.argmax().item()
-#             reasoning = candidate_texts[best_match_idx]
-
-#         except Exception as e:
-#             reasoning = f"Error processing image: {str(e)}"
-
-#     return reasoning
-
-# def multimodal_reasoning(text, image_path=None):
-#     reasoning = ""  # Default reasoning text
-#     if image_path:
-#         image = clip_processor(images=image_path, return_tensors="pt")
-#         with torch.no_grad():
-#             image_features = clip_model.get_image_features(**image)
-#         reasoning = f"Image features extracted: {image_features.shape}"
-#     return reasoning
-
-# def multimodal_reasoning(image_path=None):
-#     reasoning = ""  # Default reasoning text
-#     if image_path:
-#         try:
-#             # Load image using PIL
-#             image = Image.open(image_path).convert("RGB")
-
-#             # Process image using CLIP's processor
-#             inputs = clip_processor(images=image, return_tensors="pt")
-#             # Extract image features
-#             with torch.no_grad():
-#                 image_features = clip_model.get_image_features(**inputs)
-#             reasoning = f"Image features extracted: {image_features.shape}"
-#         except Exception as e:
-#             reasoning = f"Error processing image: {str(e)}"
-#     return reasoning
-
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def reduce_bias(text, bias_level, image_path=None, model="gpt-3.5-turbo"):
@@ -181,7 +108,7 @@ def reduce_bias(text, bias_level, image_path=None, model="gpt-3.5-turbo"):
         # return response.choices[0].message.content.strip()
         return response.choices[0].message.content.strip(), multimodal_context
     except Exception as e:
-        return str(e)
+        return str(e), multimodal_context
 
 
 def multicon_GPT_ana(text, bias_level, image_path=None):

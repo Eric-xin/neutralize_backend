@@ -79,7 +79,8 @@ async def reduce_bias_endpoint(
                 raise HTTPException(status_code=500, detail=f"Failed to save image: {image.filename}")
 
         # Select model based on bias level
-        model = "gpt-3.5-turbo" if bias_level["Middle"] < 0.3 else "gpt-4"
+        model = "gpt-3.5-turbo" if bias_level["Middle"] < 0.3 else "gpt-4-turbo"
+        # model = "gpt-3.5-turbo"
 
         # Process the text using AI model
         try:
@@ -98,24 +99,6 @@ async def reduce_bias_endpoint(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# @neu.post("/reduce_bias")
-# async def reduce_bias_endpoint(request: NeuReason):
-#     try:
-#         text = request.text
-#         # bias_level = request.bias_level
-#         image_path = request.image_path
-        
-#         # Analyze bias
-#         bias_level = NLP_ana(text)
-        
-#         # Select model based on bias level
-#         model = "gpt-3.5-turbo" if bias_level['Middle'] < 0.3 else "gpt-4"
-        
-#         neutral_text = reduce_bias(text, bias_level, image_path, model)
-#         return {"original_text": text, "bias_analysis": bias_level, "neutral_text": neutral_text}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
 
 @neu.post("/reduce_bias_txt")
 async def reduce_bias_only_txt_endpoint(request: TextRequest):
