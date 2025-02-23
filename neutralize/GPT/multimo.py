@@ -8,22 +8,35 @@ from PIL import Image
 
 load_dotenv()
 
+# Determine available device: cuda > mps > cpu
+device = torch.device("cuda" if torch.cuda.is_available() 
+                      else "mps" if torch.backends.mps.is_available() 
+                      else "cpu")
+print(f"Using device: {device}")
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Load bias analysis model
+# Load bias analysis model and move to device
 tokenizer = AutoTokenizer.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
 model = AutoModelForSequenceClassification.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
+model.to(device)
 
-# Load CLIP model and processor
+# Load CLIP model and processor, then move model to device
 clip_model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
 clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
+clip_model.to(device)
 
-# Load GPT-2 model and tokenizer for text generation
+# Load GPT-2 model and tokenizer for text generation, then move model to device
 gpt_tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
 gpt_model = GPT2LMHeadModel.from_pretrained("gpt2")
+gpt_model.to(device)
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def NLP_ana(text):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+    # Move inputs to device
+    inputs = {k: v.to(device) for k, v in inputs.items()}
     with torch.no_grad():
         logits = model(**inputs).logits
         probabilities = logits.softmax(dim=-1)[0].tolist()
@@ -41,6 +54,7 @@ def multimodal_reasoning(image_path=None):
         # Load and preprocess the image using CLIP
         image = Image.open(image_path).convert("RGB")
         inputs = clip_processor(images=image, return_tensors="pt")
+        inputs = {k: v.to(device) for k, v in inputs.items()}
         with torch.no_grad():
             image_features = clip_model.get_image_features(**inputs)
         image_features /= image_features.norm(dim=-1, keepdim=True)
@@ -55,6 +69,7 @@ def multimodal_reasoning(image_path=None):
         
         # Use CLIP to determine which base prompt best aligns with the image
         text_inputs = clip_processor(text=base_prompts, return_tensors="pt", padding=True)
+        text_inputs = {k: v.to(device) for k, v in text_inputs.items()}
         with torch.no_grad():
             text_features = clip_model.get_text_features(**text_inputs)
         text_features /= text_features.norm(dim=-1, keepdim=True)
@@ -65,7 +80,7 @@ def multimodal_reasoning(image_path=None):
         
         # Use the selected prompt to generate a detailed description with GPT-2
         prompt = f"Describe the image in detail: {selected_prompt}"
-        input_ids = gpt_tokenizer.encode(prompt, return_tensors="pt")
+        input_ids = gpt_tokenizer.encode(prompt, return_tensors="pt").to(device)
         output_ids = gpt_model.generate(
             input_ids, 
             max_length=150, 
@@ -79,8 +94,6 @@ def multimodal_reasoning(image_path=None):
 
     except Exception as e:
         return f"Error processing image: {str(e)}"
-
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 def reduce_bias(text, bias_level, image_path=None, model="gpt-3.5-turbo"):
     multimodal_context = multimodal_reasoning(image_path)
@@ -105,11 +118,9 @@ def reduce_bias(text, bias_level, image_path=None, model="gpt-3.5-turbo"):
             ],
             temperature=0.5
         )
-        # return response.choices[0].message.content.strip()
         return response.choices[0].message.content.strip(), multimodal_context
     except Exception as e:
         return str(e), multimodal_context
-
 
 def multicon_GPT_ana(text, bias_level, image_path=None):
     multimodal_context = multimodal_reasoning(image_path)
@@ -134,7 +145,6 @@ def multicon_GPT_ana(text, bias_level, image_path=None):
             ],
             temperature=0.5
         )
-        # return response.choices[0].message.content.strip()
         return response.choices[0].message.content.strip(), multimodal_context
     except Exception as e:
         return str(e)

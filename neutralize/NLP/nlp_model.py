@@ -1,11 +1,19 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW
 import torch
 from db.url_cache import get_db, website_cache
 from sqlalchemy.orm import Session
 from sqlalchemy import select, insert
-from transformers import AdamW
+
+# Setup device: CUDA > MPS > CPU
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+    device = torch.device("mps")
+else:
+    device = torch.device("cpu")
+print(f"Using device: {device}")
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -13,7 +21,7 @@ app = FastAPI()
 # Load PoliticalBiasBERT model
 MODEL_NAME = "bucketresearch/politicalBiasBERT"
 tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
+model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME).to(device)
 
 # Define input structure
 class TextRequest(BaseModel):
@@ -24,12 +32,14 @@ class TextRequest(BaseModel):
 # NLP function
 def NLP_ana(text):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+    # Move input tensors to the selected device
+    inputs = {k: v.to(device) for k, v in inputs.items()}
     with torch.no_grad():
         logits = model(**inputs).logits
         probabilities = logits.softmax(dim=-1)[0].tolist()
 
     categories = ["Left", "Middle", "Right"]
-    return {categories[i]: float(probabilities[i]) for i in range(len(categories))}  # Ensure float values
+    return {categories[i]: float(probabilities[i]) for i in range(len(categories))}
 
 # Reinforcement Learning Function
 def reinforce_learning(text, correct_label):
@@ -41,7 +51,10 @@ def reinforce_learning(text, correct_label):
     - correct_label (str): The bias classification from GPT-4 ('Left', 'Middle', 'Right').
     """
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
-    labels = torch.tensor([[0, 0, 0]])  # One-hot encoding
+    # Move input tensors to device
+    inputs = {k: v.to(device) for k, v in inputs.items()}
+
+    labels = torch.tensor([[0, 0, 0]]).to(device)  # One-hot encoding on the device
 
     if correct_label == "Left":
         labels[0][0] = 1
@@ -84,6 +97,10 @@ async def analyze_bias(request: TextRequest, db: Session = Depends(get_db)):
 
         # If URL is not in cache, run NLP analysis
         bias_result = NLP_ana(request.text)
+
+        # Placeholder variables for GPT feedback (ensure these are defined or passed in your actual implementation)
+        gpt_bias = "Middle"        # Example default value; replace with actual GPT feedback
+        gpt_explanation = "N/A"      # Example default explanation
 
         # Compare results and reinforce learning if needed
         model_prediction = max(bias_result, key=bias_result.get)  # Get highest probability category
