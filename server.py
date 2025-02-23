@@ -5,6 +5,7 @@ import uvicorn
 import colorama
 # from neutralize.neutralize import neu
 from neutralize.neutralize_not_enc import neu
+from neutralize.neutralize import neu as neu_encrypted
 # from database import cache
 from db.url_cache import cache
 
@@ -24,9 +25,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 app.include_router(auth, prefix="/api")
 app.include_router(neu, prefix="/api")
 app.include_router(cache, prefix="/api")
+app.include_router(neu_encrypted, prefix="/api/encrypted")
 
 # if __name__ == "__main__": uvicorn.run("server:app", host="localhost", reload=True, port=9999)
 

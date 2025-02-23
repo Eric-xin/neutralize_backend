@@ -182,3 +182,32 @@ def reduce_bias(text, bias_level, image_path=None, model="gpt-3.5-turbo"):
         return response.choices[0].message.content.strip(), multimodal_context
     except Exception as e:
         return str(e)
+
+
+def multicon_GPT_ana(text, bias_level, image_path=None):
+    multimodal_context = multimodal_reasoning(image_path)
+    prompt = f"""
+    The following text may have bias based on the given bias level ({bias_level}). 
+    Please explain why the text is biased, in markdown, and also analyze how to correctly interpret it:
+    
+    Original Text:
+    "{text}"
+    
+    Additional Context:
+    {multimodal_context}
+    
+    Neutral Rewrite:
+    """
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are an AI that neutralizes bias in text with advanced multimodal reasoning."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.5
+        )
+        # return response.choices[0].message.content.strip()
+        return response.choices[0].message.content.strip(), multimodal_context
+    except Exception as e:
+        return str(e)

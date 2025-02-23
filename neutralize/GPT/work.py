@@ -53,6 +53,7 @@ def GPT_ana(text, bias_level):
     gpt_output = response.choices[0].message.content.strip()
     try:
         gpt_data = json.loads(gpt_output)
-        return {"bias": gpt_data["bias"], "explanation": gpt_data["explanation"]}
+        # return {"bias": gpt_data["bias"], "explanation": gpt_data["explanation"]}
+        return gpt_data["explanation"]
     except json.JSONDecodeError:
         return {"bias": "Unknown", "explanation": "GPT response not in JSON format."}

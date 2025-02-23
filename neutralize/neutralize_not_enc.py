@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 from neutralize.GPT.work import GPT_ana
 from neutralize.NLP.nlp_model import NLP_ana
-from neutralize.GPT.reduceBias import reduce_bias
+from neutralize.GPT.multimo import reduce_bias, multicon_GPT_ana
 
 from schemas import BiasRequest, TextRequest, NeuReason
 
@@ -128,6 +128,21 @@ async def reduce_bias_only_txt_endpoint(request: TextRequest):
         image_path = None
         
         neutral_text = reduce_bias(text, bias_level, image_path, model)
+        return {"original_text": text, "bias_analysis": bias_level, "neutral_text": neutral_text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@neu.post("/multicon_GPT_ana")
+async def multicon_GPT_ana_endpoint(request: TextRequest):
+    try:
+        text = request.text
+        bias_level = NLP_ana(text)
+        
+        # Select model based on bias level
+        model = "gpt-3.5-turbo" if bias_level['Middle'] < 0.3 else "gpt-4"
+        image_path = None
+        
+        neutral_text = multicon_GPT_ana(text, bias_level, image_path, model)
         return {"original_text": text, "bias_analysis": bias_level, "neutral_text": neutral_text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
