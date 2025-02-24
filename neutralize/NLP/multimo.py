@@ -12,7 +12,7 @@ load_dotenv()
 device = torch.device("cuda" if torch.cuda.is_available() 
                       else "mps" if torch.backends.mps.is_available() 
                       else "cpu")
-print(f"Using device: {device}")
+print(f"Using device: {device.type.upper()} ({torch.cuda.get_device_name(device) if device.type == 'cuda' else 'N/A'})")
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -122,7 +122,7 @@ def reduce_bias(text, bias_level, image_path=None, model="gpt-3.5-turbo"):
     except Exception as e:
         return str(e), multimodal_context
 
-def multicon_GPT_ana(text, bias_level, image_path=None):
+def multicon_GPT_ana(text, bias_level, image_path=None, model="gpt-3.5-turbo"):
     multimodal_context = multimodal_reasoning(image_path)
     prompt = f"""
     The following text may have bias based on the given bias level ({bias_level}). 
@@ -147,4 +147,4 @@ def multicon_GPT_ana(text, bias_level, image_path=None):
         )
         return response.choices[0].message.content.strip(), multimodal_context
     except Exception as e:
-        return str(e)
+        return str(e), multimodal_context

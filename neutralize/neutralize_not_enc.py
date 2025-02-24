@@ -1,11 +1,18 @@
+"""
+This is the unencrypted version of the neutralize API.
+No longer under maintenance and can be deprecated.
+Reference to neutralize.py for the encrypted version.
+"""
+
+
 from fastapi import FastAPI, HTTPException
 from fastapi import APIRouter
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
-from neutralize.GPT.work import GPT_ana
+from neutralize.NLP.GPT_ana import GPT_ana
 from neutralize.NLP.nlp_model import NLP_ana
-from neutralize.GPT.multimo import reduce_bias, multicon_GPT_ana
+from neutralize.NLP.multimo import reduce_bias, multicon_GPT_ana
 
 from schemas import BiasRequest, TextRequest, NeuReason
 
