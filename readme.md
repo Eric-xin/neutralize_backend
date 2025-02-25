@@ -17,7 +17,7 @@ Neutralize is a web application designed to analyze and neutralize political bia
   - [API Endpoints](#api-endpoints)
     - [Authentication](#authentication)
     - [User Management](#user-management)
-    - [Bias Analysis](#bias-analysis)
+    - [Neutralise](#neutralise)
   - [Technologies](#technologies)
   - [Project Structure](#project-structure)
   - [License](#license)
@@ -65,7 +65,13 @@ Neutralize is a web application designed to analyze and neutralize political bia
     ```
 
 2. **Access the API documentation**:
-    - Open your browser and navigate to `http://localhost:9999/api/docs`.
+    - Open your browser and navigate to `http://localhost:8000/api/docs`.
+
+3. **Run in development**
+    - Run the server with the following command:
+    ```sh
+    fastapi dev server.py
+    ```
 
 ## API Endpoints
 
@@ -73,46 +79,61 @@ Neutralize is a web application designed to analyze and neutralize political bia
 
 - **Register a new user**:
     - `POST /api/register`
-    - Request body: [User](http://_vscodecontentref_/2) schema
+    - Request body: User schema
 
 - **Login**:
     - `POST /api/login`
-    - Request body: [OAuth2PasswordRequestForm](http://_vscodecontentref_/3)
+    - Request body: OAuth2PasswordRequestForm
 
 ### User Management
 
 - **Retrieve all users**:
     - `GET /api/users`
-    - Response: List of [UserResponse](http://_vscodecontentref_/4) schema
+    - Response: List of UserResponse schema
 
 - **Retrieve a single user**:
     - `GET /api/user/{id}`
-    - Response: [UserResponse](http://_vscodecontentref_/5) schema
+    - Response: UserResponse schema
 
 - **Update user data**:
     - `PATCH /api/user/{id}`
-    - Request body: [User](http://_vscodecontentref_/6) schema
+    - Request body: User schema
 
 - **Delete a user**:
     - `DELETE /api/user/{id}`
-    - Response: List of [UserResponse](http://_vscodecontentref_/7) schema
+    - Response: List of UserResponse schema
 
-### Bias Analysis
+### Neutralise
 
 - **Analyze text for bias**:
     - `POST /api/analyze/`
-    - Request body: [TextRequest](http://_vscodecontentref_/8) schema
+    - Request body: TextRequest schema
     - Response: Bias analysis result
 
 - **Analyze text for bias and get explanation**:
     - `POST /api/analyze_mult/`
-    - Request body: [TextRequest](http://_vscodecontentref_/9) schema
+    - Request body: TextRequest schema
     - Response: Bias analysis result and explanation
 
-- **Caching intergration for websites visited**:
+- **Reduce bias in text**:
+    - `POST /api/reduce_bias_txt`
+    - Request body: TextRequest schema
+    - Response: Original text, bias analysis result, and neutralized text
+
+- **Reduce bias in text and image**:
+    - `POST /api/reduce_bias`
+    - Request body: Form data with text and optional image file
+    - Response: Original text, bias analysis result, neutralized text, and additional context
+
+- **Analyze text and image for bias with multicontext**:
+    - `POST /api/multicon_bias_ana`
+    - Request body: Form data with text and optional image file
+    - Response: Original text, bias analysis result, and explanation
+
+- **Caching integration for websites visited**:
     - `POST /api/cache`
-    - Request body: [CacheRequest](http://_vscodecontentref_/10) schema
-    - Response: URL, Title and Text are added into table Cache
+    - Request body: CacheRequest schema
+    - Response: URL, Title, and Text are added into table Cache
 
 ## Technologies
 - **FastAPI**: Web framework for building APIs with Python.
@@ -120,35 +141,46 @@ Neutralize is a web application designed to analyze and neutralize political bia
 - **SQLAlchemy**: SQL toolkit and Object-Relational Mapping (ORM) for Python.
 - **SQLite**: Serverless, self-contained SQL database engine.
 - **BERT**: Pre-trained NLP model developed by Google.
+- **CLIP**: Vision-language multimodal model developed by OpenAI.
+- **GPT-2**: Generative Pre-trained Transformer developed by OpenAI.
+- **OAuth2**: Authentication framework for securing APIs.
 
 ## Project Structure
 ```plaintext
 .
 ├── CRUD
-│   └── authen.py
+│   └── authen.py
 ├── LICENSE
-├── database
-│   ├── SQLite.db
-│   ├── SQLite.db-journal
-│   └── db_gen.py
+├── assets
+│   └── img
 ├── database.py
+├── db
+│   ├── SQLite.db
+│   ├── SQLite.db-journal
+│   ├── __init__.py
+│   ├── credit_check.py
+│   ├── db_gen.py
+│   └── url_cache.py
 ├── models.py
 ├── neutralize
-│   ├── GPT
-│   │   ├── __init__.py
-│   │   └── work.py
-│   ├── NLP
-│   │   ├── nlp_app.py
-│   │   └── nlp_model.py
-│   └── neutralize.py
+│   ├── NLP
+│   │   ├── GPT_ana.py
+│   │   ├── __init__.py
+│   │   └── multimo.py
+│   ├── neutralize.py
+│   ├── neutralize_not_enc.py
+│   └── reinforced
+│       ├── __init__.py
+│       └── nlp_model.py
 ├── readme.md
 ├── requirements.txt
 ├── schemas.py
 ├── server.py
 ├── service
-│   ├── hashing.py
-│   ├── jwttoken.py
-│   └── oauth.py
+│   ├── hashing.py
+│   ├── jwttoken.py
+│   └── oauth.py
+└── uploaded_images
 ```
 
 ## License
