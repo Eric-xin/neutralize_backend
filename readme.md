@@ -5,20 +5,47 @@
     <h1>Neutralize</h1>
 </div>
 
-Neutralize is a web application designed to analyze and neutralize political bias in text using machine learning models. It leverages the BERT model for bias detection and OpenAI's GPT for generating explanations of the detected bias.
+**This is the backend repository for Neutralize.** This project was developed during the [HackIreland](https://devpost.com/software/neutraliser) hackathon. And it was awarded the **Runner-up** prize. 🎉
 
-## Table of Contents
+> This repository is no longer maintained after the completion of hackathon. For more information, see the [Note](#note) section.
+
+In today's digital age, encountering biased information is almost inevitable. To address this challenge, we developed Neutralize, a Chrome extension designed to help users identify and understand biases in the articles they read. By offering both quick insights and in-depth analyses, Neutralize empowers users to approach information critically and make informed decisions.
+
+<h3> Features </h3>
+
+- **Instant Bias Detection**: As you browse, Neutralize analyzes the content of each webpage, providing an immediate assessment of its bias—left, center, or right.
+- **Alternative Perspectives**: For every article, Neutralize suggests alternative sources covering the same topic, allowing users to explore diverse viewpoints.
+- **Reinforcement Learning**: By labeling articles, users contribute to the continuous improvement of our Natural Language Processing (NLP) model, enhancing its accuracy over time.
+- **Premium GPT Analysis**: For users seeking a deeper understanding, Neutralize offers a premium feature that utilizes OpenAI's GPT model to provide comprehensive bias analyses.
+
+## Note <!-- omit in toc -->
+This repository is no longer maintained after the completion of hackathon. 
+
+The new repository **Neutralise-backend** can be found [here](https://github.com/Eric-xin/neutralise-backend.git)
+New features include:
+- [x] MongoDB integration
+- [x] Encrypted user api
+- [x] Signup with access control and rate limit
+- [x] Modularized endpoints
+- [x] Improved readability and maintainability
+- [x] Cache functionality
+- [x] Credit check for users
+- [x] Multicontext analysis
+- [x] Cache-integrated api
+Other features like local language model, video analysis, and more are coming soon.
+
+## Table of Contents <!-- omit in toc -->
 
 - [Neutralize](#neutralize)
-  - [Table of Contents](#table-of-contents)
   - [Features](#features)
+  - [Technologies](#technologies)
   - [Installation](#installation)
   - [Usage](#usage)
   - [API Endpoints](#api-endpoints)
     - [Authentication](#authentication)
     - [User Management](#user-management)
     - [Neutralise](#neutralise)
-  - [Technologies](#technologies)
+  - [Technologies](#technologies-1)
   - [Project Structure](#project-structure)
   - [License](#license)
 
@@ -29,6 +56,21 @@ Neutralize is a web application designed to analyze and neutralize political bia
 - **Bias Explanation**: Generate explanations for detected bias using OpenAI's GPT.
 - **Database Integration**: Store and manage user data using SQLite.
 - **API Endpoints**: Expose functionalities through RESTful API endpoints.
+- **Multimodal Analysis**: Analyze text and image for bias with multiple contexts.
+
+## Technologies
+<!-- badges -->
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![Pydantic](https://img.shields.io/badge/Pydantic-333?style=for-the-badge&logo=pydantic&logoColor=white)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-333?style=for-the-badge&logo=sqlalchemy&logoColor=white)
+![BERT](https://img.shields.io/badge/BERT-333?style=for-the-badge&logo=bert&logoColor=white)
+![CLIP](https://img.shields.io/badge/CLIP-333?style=for-the-badge&logo=clip&logoColor=white)
+![GPT-2](https://img.shields.io/badge/GPT-2-333?style=for-the-badge&logo=gpt&logoColor=white)
+![OAuth2](https://img.shields.io/badge/OAuth2-333?style=for-the-badge&logo=oauth&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-333?style=for-the-badge&logo=openai&logoColor=white)
+![Transformer](https://img.shields.io/badge/Transformer-333?style=for-the-badge&logo=transformer&logoColor=white)
 
 ## Installation
 
